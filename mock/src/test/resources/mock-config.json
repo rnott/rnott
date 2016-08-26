@@ -1,0 +1,77 @@
+[
+	{
+		"uri": "/foo",
+		"method": "GET",
+		"status": 200,
+		"delay": 1000,
+		"response": [
+			{
+				"percentile": 80,
+				"headers": {
+					"Cache-Control": "private",
+					"Content-Type": "text/json; charset=utf-8",
+					"Server": "",
+					"X-Powered-By": "",
+					"Date": "${date.now['EEE, dd MMM yyyy HH:mm:ss z']}",
+					"Connection": "Keep-Alive"
+				},
+				"body": {
+					"echo": ${echo},
+					"foo": "${string.substring[${echo},0,${string.indexOf[${echo},'@']}]}",
+					"bar": "${string.replace[${string.substring[${echo},${string.indexOf[${echo},'@']}]},'@','']}"
+				}
+			}, {
+				"percentile": 10,
+				"delay": 2000,
+				"headers": {
+					"Cache-Control": "private",
+					"Content-Type": "text/json; charset=utf-8",
+					"Server": "",
+					"X-Powered-By": "",
+					"Date": "${date.now['EEE, dd MMM yyyy HH:mm:ss z']}",
+					"Connection": "Keep-Alive"
+				},
+				"body": {
+					"echo": ${echo},
+					"foo": "${string.substring[${echo},0,${string.indexOf[${echo},'@']}]}",
+					"bar": "${string.replace[${string.substring[${echo},${string.indexOf[${echo},'@']}]},'@','']}"
+				}
+			}, {
+				"percentile": 10,
+				"delay": 3000,
+				"headers": {
+					"Cache-Control": "private",
+					"Content-Type": "text/json; charset=utf-8",
+					"Server": "",
+					"X-AspNet-Version": "",
+					"X-Powered-By": "",
+					"Date": "${date.now['EEE, dd MMM yyyy HH:mm:ss z']}",
+					"Connection": "Keep-Alive"
+				},
+				"body": {
+					"echo": "${echo}",
+					"foo" : "${string.substring[${echo},0,${string.indexOf[${echo},'@']}]}",
+					"bar" : "${string.replace[${string.substring[${echo},${string.indexOf[${echo},'@']}]},'@','']}"
+				}
+			}
+		]
+	}, {
+		"uri": "/echo",
+		"method": "GET",
+		"status": 200,
+		"response": [
+			{
+				"headers": {
+					"Cache-Control": "private",
+					"Content-Type": "text/json; charset=utf-8",
+					"Server": "",
+					"X-Powered-By": "",
+					"Date": "${date.now['EEE, dd MMM yyyy HH:mm:ss z']}",
+				},
+				"body": {
+					"echo": "The value of the query parameter echo is '${echo}'"
+				}
+			}
+		]
+	}
+]
