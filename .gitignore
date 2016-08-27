@@ -11,4 +11,4 @@ buildNumber.properties
 .classpath
 .settings/
 test-output/
-
+.DS_Store
