@@ -20,7 +20,7 @@
 		<jetty.version.jdk8>9.3.3.v20150827</jetty.version.jdk8>
 		<jersey.version>1.19</jersey.version>
 		<antlr.version>4.5.1-1</antlr.version>
-		<shade.plugin.version>2.4.1</shade.plugin.version>
+		<shade.plugin.version>2.4.3</shade.plugin.version>
 	</properties>
 
 	<dependencies>
@@ -97,6 +97,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
+				<version>${shade.plugin.version}</version>
 				<executions>
 					<execution>
 						<phase>package</phase>
@@ -118,6 +119,25 @@
 					</execution>
 				</executions>
 			</plugin>
+
+		    <plugin>
+		        <groupId>org.codehaus.mojo</groupId>
+		        <artifactId>exec-maven-plugin</artifactId>
+		        <version>1.5.0</version>
+		        <executions>
+		            <execution>
+		                <id>java-cli</id>
+		                <goals>
+		                    <goal>java</goal>
+		                </goals>
+		            </execution>
+		        </executions>
+                <configuration>
+                    <mainClass>org.rnott.mock.Main</mainClass>
+                    <arguments>
+                    </arguments>
+                </configuration>                        
+		    </plugin>
 		</plugins>
 	</build>
 </project>

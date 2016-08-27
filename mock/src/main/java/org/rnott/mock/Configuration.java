@@ -21,9 +21,7 @@ import java.io.File;
 import java.util.UUID;
 
 /**
- * 
- * TODO: document Configuration
- *
+ * Simple server configuration model.
  */
 public class Configuration {
 
@@ -33,10 +31,20 @@ public class Configuration {
 		path.mkdirs();
 	}
 
+	/**
+	 * Get the server working directory.
+	 * <p>
+	 * @return the working directory.
+	 */
 	public static File getWorkDirectory() {
 		return path;
 	}
 
+	/**
+	 * Determine the server working directory.
+	 * <p>
+	 * @return the working directory to use.
+	 */
 	public static String getWorkPath() {
 		return path.getAbsolutePath();
 	}

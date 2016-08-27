@@ -22,19 +22,35 @@ import org.rnott.mock.Evaluator;
 
 
 /**
- * TODO: document RandomEvaluator
- *
+ * Support for rqndom values during expression language evaluation.
+ * The following psuedo-methods are available:
+ * <ul>
+ * <li>uuid(): generate a new random v4 UUID.
+ * <li>integer(): generate the next random integer value.
+ * <li>long(): generate the next random long value.
+ * </ul>
+ * <p>
+ * @see java.security.SecureRandom
+ * @todo use reflection to support all SecureRandom methods.
  */
 public class RandomEvaluator implements Evaluator {
 
 	// is this thread-safe?
 	static final SecureRandom RANDOM = new SecureRandom();
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Evaluator#key()
+	 */
 	@Override
 	public String key() {
 		return "random";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Evaluator#evaluate(java.lang.String, java.lang.Object[])
+	 */
 	@Override
 	public String evaluate( String method, Object ... args ) {
 		if ( "uuid".equalsIgnoreCase( method ) ) {

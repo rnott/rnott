@@ -36,14 +36,16 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.sun.jersey.api.uri.UriTemplate;
 
 /**
- * 
- * TODO: document MockServlet
- *
+ * An HTTP servlet implementation that can be configured to serve canned
+ * service responses.
  */
 public class MockServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 8169961897058098636L;
 
+	/**
+	 * Models configuration for a service endpoint response option.
+	 */
 	private static class Response implements Comparable<Response> {
 		private final int status;
 		private final long delay;
@@ -51,6 +53,13 @@ public class MockServlet extends HttpServlet {
 		private final Map<String, String> headers;
 		private String body;
 
+		/**
+		 * Create the configuration for a service endpoint response option.
+		 * <p>
+		 * @param defaultStatus the HTTP status to use if not configured.
+		 * @param defaultDelay the wait to use if not configured.
+		 * @param attributes collection of configured settings.
+		 */
 		private Response( int defaultStatus, long defaultDelay, Map<String, ?> attributes ) {
 			this.headers = new HashMap<String, String>();
 			if ( attributes.containsKey( "status" ) ) {
@@ -117,11 +126,19 @@ public class MockServlet extends HttpServlet {
 			return out.toString();
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
 		@Override
 		public String toString() {
 			return String.valueOf( status );
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Comparable#compareTo(java.lang.Object)
+		 */
 		@Override
 		public int compareTo( Response o ) {
 			if ( this.percentile == o.percentile ) {
@@ -134,6 +151,9 @@ public class MockServlet extends HttpServlet {
 		}
 	}
 
+	/**
+	 * Models configuration for a service endpoint.
+	 */
 	private static class Endpoint {
 		private final UriTemplate template;
 		private final String method;
@@ -142,6 +162,11 @@ public class MockServlet extends HttpServlet {
 		private final List<Response> responses;
 		private final List<Response> percentile;
 
+		/**
+		 * Create the configuration for a service endpoint.
+		 * <p>
+		 * @param attributes collection of configured settings.
+		 */
 		@SuppressWarnings( "unchecked" )
 		private Endpoint( Map<String, ?> attributes ) {
 			if ( ! attributes.containsKey( "uri" ) ) {
@@ -222,6 +247,10 @@ public class MockServlet extends HttpServlet {
 			}
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
 		@Override
 		public String toString() {
 			return method + " " + template.getTemplate();
@@ -378,14 +407,6 @@ public class MockServlet extends HttpServlet {
 		Map<String, ?> [] entries = mapper.readValue( config, Map [].class );
 		for ( Map<String, ?> entry : entries ) {
 			endpoints.add( new Endpoint( entry ) );
-		}
-	}
-
-	public static final void main( String [] args ) throws Throwable {
-		MockServlet servlet = new MockServlet();
-		servlet.initialize( MockServlet.class.getResourceAsStream( "/service.json" ) );
-		for ( Endpoint e : servlet.endpoints ) {
-			System.out.println( e );
 		}
 	}
 }

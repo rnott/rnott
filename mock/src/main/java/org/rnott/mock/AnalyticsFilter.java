@@ -29,9 +29,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * 
- * TODO: document AnalyticsFilter
- *
+ * HTTP filter to collect statistics about service requests.
  */
 public class AnalyticsFilter implements Filter {
 
@@ -46,7 +44,14 @@ public class AnalyticsFilter implements Filter {
 	public void destroy() {
 	}
 
+	/*
+	 * Request count.
+	 */
 	private AtomicLong count = new AtomicLong();
+
+	/*
+	 * Elapsed time accumulator.
+	 */
 	private AtomicLong elapsed = new AtomicLong();
 
 	@Override
@@ -57,7 +62,7 @@ public class AnalyticsFilter implements Filter {
 			return;
 		}
 
-		// TODO: other analytics
+		// TODO: other analytics?
 		long start = System.currentTimeMillis();
 		chain.doFilter( request, response );
 		long ms = System.currentTimeMillis() - start;

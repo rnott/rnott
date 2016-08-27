@@ -131,7 +131,7 @@ public class Main {
 			.add( new StringSetting( "host", "127.0.0.1" ) )
 			.add( new NumericSetting( "port", 8080 ) )
 			.add( new NumericSetting( "maxRequests", 0 ) )
-			.add( new BooleanSetting( "caputureEnabled", false ) )
+			.add( new BooleanSetting( "captureEnabled", false ) )
 			.add( new BooleanSetting( "debug", false ) )
 			.add( new BooleanSetting( "trace", false ) )
 			.add( new StringSetting( "config" ) )

@@ -20,19 +20,35 @@ import org.rnott.mock.Setting;
 
 
 /**
- * TODO: document StringSetting
- *
+ * Models a setting with a <code>java.lang.String</code> value.
  */
 public class StringSetting extends Setting<String> {
 
+	/**
+	 * Construct a setting identified by the specified key
+	 * and a default value of <code>null</code>.
+	 * <p>
+	 * @param key the setting identifier.
+	 */
 	public StringSetting( String key ) {
 		super( key );
 	}
 
+	/**
+	 * Construct a setting identified by the specified key
+	 * and a default value.
+	 * <p>
+	 * @param key the setting identifier.
+	 * @param defaultValue the default value to use if none is assigned.
+	 */
 	public StringSetting( String key, String defaultValue ) {
 		super( key, defaultValue );
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Setting#parse(java.lang.String)
+	 */
 	@Override
 	protected String parse( String s ) {
 		return s == null ? getDefaultValue() : s;
