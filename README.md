@@ -1,2 +1,1 @@
-# rnott.org
-Public repository of rnott.org
+![rnott.org](images/logo.png)
