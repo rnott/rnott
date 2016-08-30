@@ -17,13 +17,10 @@
 package org.rnott.mock;
 
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletConfig;
@@ -32,8 +29,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.sun.jersey.api.uri.UriTemplate;
 
 /**
  * 
@@ -43,190 +38,6 @@ import com.sun.jersey.api.uri.UriTemplate;
 public class MockServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 8169961897058098636L;
-
-	private static class Response implements Comparable<Response> {
-		private final int status;
-		private final long delay;
-		private int percentile;
-		private final Map<String, String> headers;
-		private String body;
-
-		private Response( int defaultStatus, long defaultDelay, Map<String, ?> attributes ) {
-			this.headers = new HashMap<String, String>();
-			if ( attributes.containsKey( "status" ) ) {
-				Object obj = attributes.get( "status" );
-				status = (int) obj;
-			} else {
-				status = defaultStatus;
-			}
-			if ( attributes.containsKey( "delay" ) ) {
-				Object obj = attributes.get( "delay" );
-				delay = (int) obj;
-			} else {
-				delay = defaultDelay;
-			}
-			if ( attributes.containsKey( "percentile" ) ) {
-				Object obj = attributes.get( "percentile" );
-				percentile = (int) obj;
-			}
-			if ( attributes.containsKey( "headers" ) ) {
-				@SuppressWarnings( "unchecked" )
-				Map<String, String> hdrs = (Map<String, String>) attributes.get( "headers" );
-				for ( String key : hdrs.keySet() ) {
-					headers.put( key, hdrs.get( key ) );
-				}
-			}
-			if ( attributes.containsKey( "body" ) ) {
-				// text or reference
-				Object value = attributes.get( "body" );
-				if ( value instanceof String ) {
-					try {
-						body = streamAsString( StreamFactory.getStream( (String) value ) );
-					} catch ( IOException e ) {
-						throw new RuntimeException( "Failed to parse endpoint response", e );
-					}
-
-				} else {
-					// TODO: need response factory to handle more than just JSON
-					StringWriter out = new StringWriter();
-					try {
-						new ObjectMapper().configure( SerializationFeature.INDENT_OUTPUT, true ).writeValue( out, value );
-					} catch ( Throwable e ) {
-						throw new RuntimeException( "Failed to parse endpoint response", e );
-					}
-					body = out.toString();
-				}
-			}
-		}
-
-		private String streamAsString( InputStream in ) throws IOException {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			byte [] b = new byte[8192];
-			int bytes = in.read( b );
-			try {
-				while ( bytes >= 0 ) {
-					out.write( b, 0, bytes );
-					bytes = in.read( b );
-				}
-			} finally {
-				try {
-					in.close();
-				} catch ( IOException ignore ) {}
-			}
-
-			return out.toString();
-		}
-
-		@Override
-		public String toString() {
-			return String.valueOf( status );
-		}
-
-		@Override
-		public int compareTo( Response o ) {
-			if ( this.percentile == o.percentile ) {
-				return 0;
-			} else if ( this.percentile > o.percentile ) {
-				return 1;
-			} else {
-				return -1;
-			}
-		}
-	}
-
-	private static class Endpoint {
-		private final UriTemplate template;
-		private final String method;
-		private final int status;
-		private final long delay;
-		private final List<Response> responses;
-		private final List<Response> percentile;
-
-		@SuppressWarnings( "unchecked" )
-		private Endpoint( Map<String, ?> attributes ) {
-			if ( ! attributes.containsKey( "uri" ) ) {
-				throw new IllegalStateException( "Endpoint definition missing required 'uri' attribute: " + attributes );
-			}
-			if ( ! attributes.containsKey( "method" ) ) {
-				throw new IllegalStateException( "Endpoint definition missing required 'method' attribute: " + attributes );
-			}
-			if ( ! attributes.containsKey( "status" ) ) {
-				throw new IllegalStateException( "Endpoint definition missing required 'status' attribute:" + attributes );
-			}
-			if ( ! attributes.containsKey( "response" ) ) {
-				throw new IllegalStateException( "Endpoint definition missing required 'response' attribute:" + attributes );
-			}
-
-			Object obj = attributes.get( "uri" );
-			template = new UriTemplate( (String) obj );
-			obj = attributes.get( "method" );
-			method = (String) obj;
-			obj = attributes.get( "status" );
-			status = (int) obj;
-			if ( attributes.containsKey( "delay" ) ) {
-				obj = attributes.get( "delay" );
-				delay = (int) obj;
-			} else {
-				delay = 0;
-			}
-
-			responses = new ArrayList<Response>();
-			List<Map<String, ?>> entries = (List<Map<String, ?>>) attributes.get( "response" );
-			for ( Map<String, ?> r : entries ) {
-				responses.add( new Response( status, delay, r ) );
-			}
-
-			// normalize response percentiles
-			List<Response> unassigned = new ArrayList<Response>();
-			int sum = 0;
-			for ( Response r : responses ) {
-				sum += r.percentile;
-				if ( r.percentile <= 0 ) {
-					unassigned.add( r );
-				}
-			}
-			if ( sum > 100 ) {
-				throw new IllegalStateException( "Sum of enpoint response percentiles exceeds 100:" + this );
-			}
-			if ( sum < 100 && unassigned.size() == 0 ) {
-				throw new IllegalStateException( "Sum of enpoint response percentiles less than 100:" + this );
-			}
-			if ( sum == 100 && unassigned.size() > 0 ) {
-				throw new IllegalStateException( "Enpoint responses cannot be assigned a percentile: " + this + " " + unassigned );
-			}
-
-			if ( unassigned.size() > 0 ) {
-				// spread remaining percentile evenly over unassigned endpoints
-				int value = (100 - sum) / unassigned.size();
-				if ( value == 0 ) {
-					throw new IllegalStateException( "Enpoint responses cannot be assigned a percentile: " + this + " " + unassigned );
-				}
-				for ( Response r : unassigned ) {
-					r.percentile = value;
-				}
-				int updated = sum + (unassigned.size() * value);
-				for ( Response r : unassigned ) {
-					if ( updated == 100 ) {
-						break;
-					}
-					r.percentile -= 1;
-					updated -= 1;
-				}
-			}
-
-			percentile = new ArrayList<Response>( 100 );
-			for ( Response r : responses ) {
-				for ( int i = 0; i < r.percentile; i++ ) {
-					percentile.add( r );
-				}
-			}
-		}
-
-		@Override
-		public String toString() {
-			return method + " " + template.getTemplate();
-		}
-	}
 
 	private boolean debug = false;
 	private boolean trace = false;
@@ -307,15 +118,15 @@ public class MockServlet extends HttpServlet {
 		}
 		for ( Endpoint e : endpoints ) {
 			if ( debug ) {
-				log( "Testing endpoint: " + e.method + " " + e.template.getTemplate() );
+				log( "Testing endpoint: " + e.getMethod() + " " + e.getUriTemplate().getTemplate() );
 			}
-			if ( request.getMethod().equalsIgnoreCase( e.method ) ) {
+			if ( request.getMethod().equalsIgnoreCase( e.getMethod() ) ) {
 				if ( debug ) {
-					log( "Matched method: " + e.method );
+					log( "Matched method: " + e.getMethod() );
 				}
 				Map<String, String> params = context.getParameters();
 				params.clear();
-				if ( e.template.match( request.getRequestURI(), params ) ) {
+				if ( e.getUriTemplate().match( request.getRequestURI(), params ) ) {
 					// add any query parameters
 					Enumeration<?> names = request.getParameterNames();
 					while ( names.hasMoreElements() ) {
@@ -323,32 +134,32 @@ public class MockServlet extends HttpServlet {
 						params.put( key, request.getParameter( key ) );
 					}
 					if ( debug ) {
-						log( "Matched URI: " + e.template.getTemplate() );
+						log( "Matched URI: " + e.getUriTemplate().getTemplate() );
 					}
 					Response r = getResponse( e );
 					if ( r == null ) {
 						throw new IllegalStateException( "No response available for endpoint: "
-							+ e.method + " " + e.template.getTemplate() );
+							+ e.getMethod() + " " + e.getUriTemplate().getTemplate() );
 					}
 
 					if ( debug ) {
-						log( "Response status code: " + r.status );
+						log( "Response status code: " + r.getStatus() );
 					}
-					response.setStatus( r.status );
-					for ( String key : r.headers.keySet() ) {
-						response.addHeader( key, context.evaluate( r.headers.get( key ) ) );
+					response.setStatus( r.getStatus() );
+					for ( String key : r.getHeaders().keySet() ) {
+						response.addHeader( key, context.evaluate( r.getHeaders().get( key ) ) );
 					}
-					String body = context.evaluate( r.body );
+					String body = context.evaluate( r.getBody() );
 					if ( body != null ) {
 						response.getOutputStream().write( body.getBytes() );
 					}
 
-					if ( r.delay > 0 ) {
+					if ( r.getDelay() > 0 ) {
 						if ( debug ) {
-							log( "Delaying response: " + r.delay + "ms" );
+							log( "Delaying response: " + r.getDelay() + "ms" );
 						}
 						try {
-							Thread.sleep( r.delay );
+							Thread.sleep( r.getDelay() );
 						} catch ( InterruptedException ignore ) {}
 					}
 
@@ -368,7 +179,7 @@ public class MockServlet extends HttpServlet {
 	
 	private Response getResponse( Endpoint e ) {
 		int index = (int)(Math.random() * 100);
-		return e.percentile.get( index );
+		return e.getPercentile().get( index );
 	}
 
 	private void initialize( InputStream config ) throws IOException {
