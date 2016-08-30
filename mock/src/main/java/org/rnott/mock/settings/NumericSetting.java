@@ -20,19 +20,35 @@ import org.rnott.mock.Setting;
 
 
 /**
- * TODO: document NumericSetting
- *
+ * Models a setting with a <code>java.lang.Integer</code> value.
  */
 public class NumericSetting extends Setting<Integer> {
 
+	/**
+	 * Construct a setting identified by the specified key
+	 * and a default value of <code>0</code>.
+	 * <p>
+	 * @param key the setting identifier.
+	 */
 	public NumericSetting( String key) {
 		this( key, 0 );
 	}
 
+	/**
+	 * Construct a setting identified by the specified key
+	 * and a default value.
+	 * <p>
+	 * @param key the setting identifier.
+	 * @param defaultValue the default value to use if none is assigned.
+	 */
 	public NumericSetting( String key, Integer defaultValue ) {
 		super( key, defaultValue );
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Setting#parse(java.lang.String)
+	 */
 	@Override
 	protected Integer parse( String s ) {
 		return s != null && s.length() > 0 ? Integer.parseInt( s ) : getDefaultValue();

@@ -22,17 +22,31 @@ import java.util.Date;
 import org.rnott.mock.Evaluator;
 
 /**
- * 
- * TODO: document DateEvaluator
- *
+ * Support for <code>java.util.Date</code> during expression language evaluation.
+ * No class methods are exposed, however the following psuedo-methods are available:
+ * <ul>
+ * <li>now(): current time as UNIX-style value.
+ * <li>now(format): current time formatted using the provided <code>DataFormat</code> conformant format specification.
+ * </ul>
+ * <p>
+ * @see java.util.Date
+ * @see java.text.DateFormat
  */
 public class DateEvaluator implements Evaluator {
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Evaluator#key()
+	 */
 	@Override
 	public String key() {
 		return "date";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Evaluator#evaluate(java.lang.String, java.lang.Object[])
+	 */
 	@Override
 	public Object evaluate( String method, Object ... args ) {
 		// current date/time

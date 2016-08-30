@@ -24,16 +24,28 @@ import org.rnott.mock.MockContext;
 
 
 /**
- * TODO: document RequestEvaluator
- *
+ * Support for <code>javax.servlet.http.HttpServletRequest</code> during expression language evaluation.
+ * All public instance methods are exposed via reflection. The evaluator is activated using the psuedo-class
+ * 'request'.
+ * <p>
+ * @see javax.servlet.http.HttpServletRequest
  */
 public class RequestEvaluator implements Evaluator {
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Evaluator#key()
+	 */
 	@Override
 	public String key() {
 		return "request";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Evaluator#evaluate(java.lang.String, java.lang.Object[])
+	 */
+	@Override
 	public String evaluate( String method, Object ... args ) {
 		// substitute request properties
 		HttpServletRequest request = MockContext.REQUESTS.get();

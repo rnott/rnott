@@ -12,3 +12,5 @@ buildNumber.properties
 .settings/
 test-output/
 .DS_Store
+bin/
+

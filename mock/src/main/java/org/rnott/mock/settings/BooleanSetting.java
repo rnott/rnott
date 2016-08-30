@@ -19,20 +19,35 @@ package org.rnott.mock.settings;
 import org.rnott.mock.Setting;
 
 /**
- * 
- * TODO: document BooleanSetting
- *
+ * Models a setting with a <code>java.lang.Boolean</code> value.
  */
 public class BooleanSetting extends Setting<Boolean> {
 
+	/**
+	 * Construct a setting identified by the specified key
+	 * and a default value of <code>false</code>.
+	 * <p>
+	 * @param key the setting identifier.
+	 */
 	public BooleanSetting( String key ) {
 		this( key, false );
 	}
 
+	/**
+	 * Construct a setting identified by the specified key
+	 * and a default value.
+	 * <p>
+	 * @param key the setting identifier.
+	 * @param defaultValue the default value to use if none is assigned.
+	 */
 	public BooleanSetting( String key, Boolean defaultValue ) {
 		super( key, defaultValue );
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Setting#parse(java.lang.String)
+	 */
 	@Override
 	protected Boolean parse( String s ) {
 		return s != null && s.length() > 0 ? Boolean.valueOf( s ) : getDefaultValue();

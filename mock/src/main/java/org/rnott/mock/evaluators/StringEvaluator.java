@@ -21,8 +21,17 @@ import org.rnott.mock.Evaluator;
 
 
 /**
- * TODO: document StringEvaluator
- *
+ * Support for <code>java.lang.String</code> during expression language evaluation.
+ * All public instance methods are exposed via reflection. The evaluator is activated using the psuedo-class
+ * 'string'. Method invocation requires the following pattern:
+ * <pre>
+ * method(instance[,parameters ...])
+ * where <i>method</i> is the method name
+ * <i>instance</i> is an instance of <code>java.lang.String</code> to target (usually a named request property)
+ * <i>parameters</i> are zero or more parameters to be passed to the method
+ * </pre>
+ * <p>
+ * @see java.lang.String
  */
 public class StringEvaluator implements Evaluator {
 
@@ -31,6 +40,10 @@ public class StringEvaluator implements Evaluator {
 		return "string";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.rnott.mock.Evaluator#evaluate(java.lang.String, java.lang.Object[])
+	 */
 	@Override
 	public Object evaluate( String method, Object ... args ) {
 		if ( args == null || args.length == 0 || ! (args[0] instanceof String) ) {

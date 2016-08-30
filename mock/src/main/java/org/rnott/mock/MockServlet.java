@@ -31,9 +31,8 @@ import javax.servlet.http.HttpServletResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * 
- * TODO: document MockServlet
- *
+ * An HTTP servlet implementation that can be configured to serve canned
+ * service responses.
  */
 public class MockServlet extends HttpServlet {
 
@@ -189,14 +188,6 @@ public class MockServlet extends HttpServlet {
 		Map<String, ?> [] entries = mapper.readValue( config, Map [].class );
 		for ( Map<String, ?> entry : entries ) {
 			endpoints.add( new Endpoint( entry ) );
-		}
-	}
-
-	public static final void main( String [] args ) throws Throwable {
-		MockServlet servlet = new MockServlet();
-		servlet.initialize( MockServlet.class.getResourceAsStream( "/service.json" ) );
-		for ( Endpoint e : servlet.endpoints ) {
-			System.out.println( e );
 		}
 	}
 }
