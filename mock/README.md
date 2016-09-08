@@ -4,6 +4,60 @@ A mock service project that can be used for both stress/performance and unit/fea
 
 ## Configuration
 
+The figure below depicts the available configuration types and their relationships.
+
+![rnott-mock](../images/mock-config.png)
+
+### Service
+The configuration as a whole defines the service that will be exposed by the Jetty HTTP server instance. A service is composed of one or more endpoints.
+
+### Endpoint
+A service endpoint represents an HTTP request/response message. An endpoint is selected by matching the request path to a URI assigned to the endpoint. Each endpoint returns exactly one HTTP response, comprised of a response code, zero or more response headers and optionally a response body. The following settings can be configured for an endpoint:
+
+#### uri
+The request path to match. A path is composed of zero or more segments. Multiple segments are separated using the '/' character. All paths are absolute and must start with '/'. Segments can be specified in named variable format. When matched, the corresponding segment value is made available to the response. For example, given uri configuration
+```
+/foo/${bar}/bas
+```
+If the path ```/foo/bar/bas``` is requested, it will match this endpoint and the EL varible ```${bar}``` will evaluate to ```bar``` and is available in reponse definitions. This setting is required for all endpoints.
+#### method
+The HTTP method to match. If omitted, the endpoint will match any method.
+#### status
+The default HTTP status code for all responses returned by the endpoint. Each response may independently override this value by explicitly defining its own value. If omitted, the default response code is ```200```.
+#### delay
+The response can be delayed to mimic processing time. This setting specifies the default delay time in milliseconds for all responses reutrned by the endpoint. Each response may independently override this value by explicitly defining its own value. If omitted, the default value is ```0```, indicating no delay.
+#### response
+An enpoint responds to a request with exactly one response. Multiple responses can be configured to be conditionally selected, based on dynamic criteria.
+
+### Response
+Specifies an HTTP response to be returned in response to an HTTP request. A response is composed of an HTTP status code, zero or more response headers and optionally a response body.
+
+#### delay
+Specifies the amount of time in milliseconds to delay this response when selected. This value overrides any default specified by the enclosing endpoint. When omitted, the corresponding endpoint default value is used.
+#### status
+Specifies the HTTP status code to be returned with this response when selected. This value overrides any default specified by the enclosing endpoint. When omitted, the corresponding endpoint default value is used.
+#### percentile
+Allow a reponse to be selected as the return payload by a percentage of all requests that match the enclosing endpoint. The is no default value.
+#### headers
+Specifies zero or more HTTP response headers to be returned with this response when selected. The value of a header may include EL named parameters.
+#### body
+Specifies an optional body to be returned with this response when selected. The value of the body may be either inlined text or an external resource containing the text to be returned. External resources are defined as URI's and the following schemes are supported:
+```
+classpath:body.json
+```
+Use the content of resource ```body.json``` as the body where ```body.json``` is available on the classpath.
+```
+file:/path/to/body.json
+```
+Use the content of the existing file ```/path/to/body.json```, present on the filesystem.
+```
+/path/to/body.json
+```
+Use the content of the existing file ```/path/to/body.json```, present on the filesystem. The default scheme is ```file:```.
+
+
+The value of a header may include EL named parameters.
+
 ### Example
 In the example below, a hypothetical service is configured to have a single endpoint `/path/to/get/something` that can respond
 with one of three different responses.
