@@ -1,8 +1,40 @@
 ![rnott-mock](../images/mock.png)
 
-A mock service project that can be used for both stress/performance and unit/feature testing use cases. The service is a Jetty server instance that allows endpoints and potential responses to be configured.
+This project provides an HTTP server implementation that can be used to mock the functionality of a service API. Using the mock server allows client development and testing without the need for the actual service to be available. It can also be used to prototype a hypethetical service interface without the need to actually implement it. The mock service is suitable for both stress/performance and unit/feature testing use cases.
 
-## Configuration
+The various endpoints that comprise the service are configured to return canned responses. Responses are generally statically configured, however the server makes available an expression language (EL) allowing response data to be set dynamically based on runtime state.
+
+## Expression Language
+The expression language defines a mechanism for injecting dynamic content into an otherwise static response. An expression is indicated using a ```${...}``` format. When encountered, content within the braces is evaluated and an attempt is made to resolve the expression using the runtime request context. An expression takes one of the forms listed below.
+
+### Named Parameter
+A named parameter has the form ```${name}``` where *name* is the name of a
+* path segment parameter (see Endoint below for details)
+* request header name
+* query parameter name
+* form parameter name
+
+### Method Invocation
+A method invocation has the form ```${class.method(params)}``` where *class* is the name of a built-in evaluator, *method* is the name of the method to be invoked on the built-in type, and *params* are zero or more parameters passed to the method. Built-in types and their usage are listed below. The result of a method invocation replaces the declaration in the content under evaluation.
+
+#### request
+This type exposes the current instance of ```javax.servlet.http.HttpServletRequest```. All public instance methods are exposed via reflection.
+
+#### random
+This type provides a set of random value generators
+* uuid(): generates a random UUID
+* integer():  generates a random integer value
+* long(): generates a random long value
+
+#### date
+This type provides basic date/time functioality
+* now(): current time as UNIX-style value
+* now(format): current time formatted using the provided ```java.text.DataFormat``` conformant format specification
+
+#### string
+This type exposes all public instance methods of ```java.lang.String``` using reflection. In addition to any parameters specified by a method signature, an instance parameter must be specified as the first positional parameter and will be used as the target of the method invocation.
+
+## Service Configuration
 
 The figure below depicts the available configuration types and their relationships.
 
