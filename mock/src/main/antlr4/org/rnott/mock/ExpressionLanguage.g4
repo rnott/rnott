@@ -24,6 +24,7 @@ content
 literal
 	:	STRING
 	|	INT
+	|   LONG
 	|	'true'
 	|	'false'
 	|	'null'
@@ -55,7 +56,7 @@ property
     ;
 
 verbatim
-	:	CHARACTER+
+	:   CHARACTER+
 	|	ID
 	|	CID
 	|	COMMA
@@ -65,6 +66,10 @@ verbatim
 	|	OPEN_BRACKET
 	|	CLOSE_BRACKET
 	|	EXP_END
+	|   OPEN_PARAMS
+	|   CLOSE_PARAMS
+	|   ESCAPE
+	|   ESCAPED
 	|	literal
 	;
 
@@ -132,6 +137,16 @@ DOT
 
 COMMA
 	:	','
+	;
+
+ESCAPED
+	: ESCAPE DOLLAR
+	| ESCAPE CURLY_OPEN
+	| ESCAPE EXP_END
+	;
+
+ESCAPE
+	: '\\'
 	;
 
 CHARACTER

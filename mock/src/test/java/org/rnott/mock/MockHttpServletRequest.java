@@ -41,8 +41,11 @@ import javax.servlet.http.Part;
 
 
 /**
- * TODO: document MockHttpServletRequest
- *
+ * Mock implementation of <code>javax.servlet.http.HttpServletRequest</code>. All implemented methods
+ * return <code>0</code> or <code>null</code> as appropriate for the method. This implementation can be
+ * extended to provide a minimal set of functionality.
+ * <p>
+ * @see javax.servlet.http.HttpServletRequest
  */
 public class MockHttpServletRequest implements HttpServletRequest {
 

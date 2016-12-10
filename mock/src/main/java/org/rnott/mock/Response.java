@@ -25,13 +25,21 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+/**
+ * Configuration for a mock service response endpoint. The response is configured using
+ * a JSON file or programmatically using a literate API.
+ */
 public class Response implements Comparable<Response> {
 
-	private final int status;
-	private final long delay;
+	private int status;
+	private long delay;
 	int percentile;
 	private final Map<String, String> headers;
 	private String body;
+
+	public Response() {
+		this.headers = new HashMap<String, String>();
+	}
 
 	public Response( int defaultStatus, long defaultDelay, Map<String, ?> attributes ) {
 		this.headers = new HashMap<String, String>();
@@ -108,8 +116,21 @@ public class Response implements Comparable<Response> {
     	return status;
     }
 
-	
     /**
+     * Configure the HTTP status to be returned for the response.
+     * <p>
+     * @param status the HTTP status in the range 100..599.
+     * @return the current response.
+     */
+	public Response withStatus( int status ) {
+		if ( status < 100 || status > 599 ) {
+			throw new IllegalStateException( "Status must be in the range 100..599" );
+		}
+		this.status = status;
+		return this;
+	}
+
+	/**
      * Retrieve the current value of the delay property.
      * <p>
      * @return the current property value.
@@ -118,8 +139,19 @@ public class Response implements Comparable<Response> {
     	return delay;
     }
 
-	
     /**
+     * Assign a delay to the response. The service will wait the specified number
+     * of milliseconds before returning the response.
+     * <p>
+     * @param delay the response wait time in milliseconds.
+     * @return the current response.
+     */
+	public Response withDelay( long delay ) {
+		this.delay = delay;
+		return this;
+	}
+
+	/**
      * Retrieve the current value of the percentile property.
      * <p>
      * @return the current property value.
@@ -128,8 +160,23 @@ public class Response implements Comparable<Response> {
     	return percentile;
     }
 
-	
     /**
+     * Assign a percentile to use when selecting the response out
+     * of multiple choices. Percentiles allow a response to be
+     * chosen at random the specified amount of the time.
+     * <p>
+     * @param percentile the percentile to configure.
+     * @return the current response.
+     */
+	public Response withPercentile( int percentile ) {
+		if ( percentile < 0 || percentile > 100 ) {
+			throw new IllegalStateException( "A percentile must be in the range 1..100" );
+		}
+		this.percentile = percentile;
+		return this;
+	}
+
+	/**
      * Retrieve the current value of the headers property.
      * <p>
      * @return the current property value.
@@ -138,7 +185,18 @@ public class Response implements Comparable<Response> {
     	return headers;
     }
 
-	
+    /**
+     * Configures an HTTP response to be included with the response.
+     * <p>
+     * @param key the header key.
+     * @param value the header value.
+     * @return the current response.
+     */
+    public Response withHeader( String key, String value ) {
+    	headers.put( key, value );
+    	return this;
+    }
+
     /**
      * Retrieve the current value of the body property.
      * <p>
@@ -148,11 +206,30 @@ public class Response implements Comparable<Response> {
     	return body;
     }
 
-	@Override
+    /**
+     * Register a body for use with the response.
+     * <p>
+     * @param body the body to register.
+     * @return the current response.
+     */
+    public Response wtihBody( String body ) {
+    	this.body = body;
+    	return this;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
 	public String toString() {
 		return String.valueOf( status );
 	}
 
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
 	@Override
 	public int compareTo( Response o ) {
 		if ( this.percentile == o.percentile ) {

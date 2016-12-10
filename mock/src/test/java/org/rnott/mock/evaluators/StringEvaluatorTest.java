@@ -16,7 +16,6 @@
 
 package org.rnott.mock.evaluators;
 
-import org.rnott.mock.Evaluator;
 import org.rnott.mock.evaluators.StringEvaluator;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;

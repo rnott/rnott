@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.rnott.mock;
+package org.rnott.mock.settings;
 
 /**
  * Configuration setting model.
@@ -63,11 +63,7 @@ public abstract class Setting <T> {
 		for ( String s : args ) {
 			if ( s.startsWith( "--" + key + "=" ) ) {
 				int pos = s.indexOf( '=' );
-				if ( pos > 0 ) {
-					value = parse( s.substring( pos + 1 ) );
-				} else {
-					value = parse( "" );
-				}
+				value = parse( s.substring( pos + 1 ) );
 				return true;
 			}
 		}
@@ -122,6 +118,6 @@ public abstract class Setting <T> {
 	 * requested type.
 	 */
 	public T getValue( Class<T> type ) {
-		return (T) value;
+		return (T) getValue();
 	}
 }

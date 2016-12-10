@@ -16,7 +16,6 @@
 
 package org.rnott.mock.settings;
 
-import org.rnott.mock.Setting;
 
 /**
  * Models a setting with a <code>java.lang.Boolean</code> value.
@@ -50,6 +49,9 @@ public class BooleanSetting extends Setting<Boolean> {
 	 */
 	@Override
 	protected Boolean parse( String s ) {
-		return s != null && s.length() > 0 ? Boolean.valueOf( s ) : getDefaultValue();
+		if ( s != null ) {
+			return Boolean.valueOf( s );
+		}
+		return getDefaultValue();
 	}
 }

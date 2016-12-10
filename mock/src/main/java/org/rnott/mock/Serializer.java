@@ -30,28 +30,73 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 
- * TODO: document Serializer
- *
+ * Serializes an HTTP request for later inspection.
  */
 public class Serializer {
 
+	/**
+	 * Dictionary key for retrieving the HTTP method.
+	 */
+	public static final String KEY_METHOD = "method";
+	
+	/**
+	 * Dictionary key for retrieving the URI.
+	 */
+	public static final String KEY_URI = "uri";
+
+	/**
+	 * Dictionary key for retrieving the HTTP headers dictionary.
+	 */
+	public static final String KEY_HEADERS = "headers";
+
+	/**
+	 * Dictionary key for retrieving the query parameters dictionary.
+	 */
+	public static final String KEY_PARAMETERS = "parameters";
+
+	/**
+	 * Dictionary key for retrieving the HTTP entity (body).
+	 */
+	public static final String KEY_BODY = "body";
+
+	/**
+	 * Serializes an HTTP request for later inspection.
+	 * <p>
+	 * @param request the request to serialize.
+	 * @param body an optional request body.
+	 * @return a dictionary of request elements.
+	 * @throws IOException if the request cannot be serialized for any reason.
+	 */
 	public static Map<String, Object> serialize( HttpServletRequest request, byte [] body ) throws IOException {
 		Map<String, Object> serialized = new HashMap<String, Object>();
-		serialized.put( "method", request.getMethod() );
-		serialized.put( "uri", request.getRequestURI() );
+		serialized.put( KEY_METHOD, request.getMethod() );
+		serialized.put( KEY_URI, request.getRequestURI() );
 
 		// query parameters
-		// TODO: handle query parameter style name=v1&name=v2...&name=vN
+		Map<String, List<String>> params = new HashMap<String, List<String>>();
+		Enumeration<String> names = request.getParameterNames();
+		while ( names.hasMoreElements() ) {
+			String key = names.nextElement();
+			if ( ! params.containsKey( key ) ) {
+				params.put( key, new ArrayList<String>() );
+			}
+			for ( String value : request.getParameterValues( key ) ) {
+				params.get( key ).add( value );
+			}
+		}
 		String query = request.getQueryString();
 		if ( query != null ) {
-			Map<String, Object> params = new HashMap<String, Object>();
 			for ( String q : query.split( "&" ) ) {
 				int pos = q.indexOf( '=' );
-				params.put( q.substring( 0, pos ), q.substring( pos + 1 ) );
+				String key = q.substring( 0, pos );
+				String value = q.substring( pos + 1 );
+				if ( ! params.containsKey( key ) ) {
+					params.put( key, new ArrayList<String>() );
+				}
+				params.get( key ).add( value );
 			}
-			serialized.put( "query", params );
 		}
+		serialized.put( KEY_PARAMETERS, params );
 
 		// headers
 		Map<String, Object> headers = new HashMap<String, Object>();
@@ -60,23 +105,19 @@ public class Serializer {
 			String name = (String) hdrs.nextElement();
 			headers.put( name, getHeaderValues( request, name ) );
 		}
-		serialized.put( "headers", headers );
+		serialized.put( KEY_HEADERS, headers );
 
 		// body
 		if ( body != null && body.length > 0 ) {
 			BufferedReader in = new BufferedReader( new InputStreamReader( new ByteArrayInputStream( body ) ) );
 			ByteArrayOutputStream encoded = new ByteArrayOutputStream();
-			//Base64OutputStream out = new Base64OutputStream( encoded );
-			//out.write( body );
-			//out.close();
-			//encoded.write( body );
 			String line = in.readLine();
 			while ( line != null ) {
 				byte [] b = line.getBytes();
 				encoded.write( b );
 				line = in.readLine();
 			}
-			serialized.put( "body", new String( encoded.toByteArray() ) );
+			serialized.put( KEY_BODY, new String( encoded.toByteArray() ) );
 		}
 
 		return serialized;
@@ -90,10 +131,7 @@ public class Serializer {
 		}
 		if ( v.size() == 0 ) {
 			throw new IllegalStateException( "No value for header: " + name );
-		} else if ( v.size() == 1 ) {
-			return v.get( 0 );
-		} else {
-			return v.toArray();
 		}
+		return v;
 	}
 }

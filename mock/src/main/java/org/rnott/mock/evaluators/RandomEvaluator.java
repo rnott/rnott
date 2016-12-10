@@ -18,7 +18,6 @@ package org.rnott.mock.evaluators;
 
 import java.security.SecureRandom;
 import java.util.UUID;
-import org.rnott.mock.Evaluator;
 
 
 /**

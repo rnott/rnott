@@ -19,7 +19,6 @@ package org.rnott.mock.evaluators;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import javax.servlet.http.HttpServletRequest;
-import org.rnott.mock.Evaluator;
 import org.rnott.mock.MockContext;
 
 

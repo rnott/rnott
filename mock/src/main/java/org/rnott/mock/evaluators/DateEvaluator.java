@@ -19,7 +19,6 @@ package org.rnott.mock.evaluators;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.rnott.mock.Evaluator;
 
 /**
  * Support for <code>java.util.Date</code> during expression language evaluation.

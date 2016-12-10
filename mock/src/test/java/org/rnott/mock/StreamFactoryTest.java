@@ -31,8 +31,9 @@ import org.testng.annotations.Test;
 
 
 /**
- * TODO: document StreamFactoryTest
- *
+ * Test the functionality of the <code>org.rnott.mock.StreamFactoryTest</code> component.
+ * <p>
+ * @see org.rnott.mock.StreamFactory
  */
 public class StreamFactoryTest {
 
@@ -48,14 +49,23 @@ public class StreamFactoryTest {
 		return new Object [][] {
 			// text stream 
 			{ "this is sample text", digest( "this is sample text" ) },
+			{ "/foo/bar", digest( "/foo/bar" ) },
 			// classpath resource
 			{ "classpath:mock-config.json", digest( StreamFactoryTest.class.getResourceAsStream( "/mock-config.json" ) ) },
+			{ "classpath:", digest( "classpath:" ) },
 			// HTTP resource
 			{ "http://web.archive.org/web/20160823001242/http://www.google.com/", digest( new URL( "http://web.archive.org/web/20160823001242/http://www.google.com/" ).openStream() ) },
 			// file scheme
 			{ "file:" + f.getAbsolutePath(), digest( new FileInputStream( f ) ) },
 			// file without scheme
 			{ f.getAbsolutePath(), digest( new FileInputStream( f ) ) },
+		};
+	}
+
+	@DataProvider(name = "invalid")
+	private Object [][] invalid() {
+		return new Object [][] {
+			{ "classpath:missing.properties" },
 		};
 	}
 
@@ -78,10 +88,22 @@ public class StreamFactoryTest {
 		}
 	}
 
+	/**
+	 * Assert streaming functionality.
+	 * <p>
+	 * @param uri the URI defining the resource to be streamed.
+	 * @param expected the digest which is expected to match the digest of the streamed content.
+	 * @throws IOException if the stream cannot be consumed for any reason.
+	 */
 	@Test(dataProvider = "uri")
 	public void getStream( String uri, byte [] expected ) throws IOException {
 		InputStream stream = StreamFactory.getStream( uri );
 		assert stream != null : "No input stream created";
 		assert MessageDigest.isEqual( digest( stream ), expected ) : "Digest does not match expected value";
+	}
+
+	@Test(dataProvider = "invalid", expectedExceptions = {IllegalStateException.class, IOException.class})
+	public void getStream_IllegalStateException( String uri ) throws IOException {
+		StreamFactory.getStream( uri );
 	}
 }

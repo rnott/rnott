@@ -17,7 +17,6 @@
 package org.rnott.mock.evaluators;
 
 import java.lang.reflect.Method;
-import org.rnott.mock.Evaluator;
 
 
 /**

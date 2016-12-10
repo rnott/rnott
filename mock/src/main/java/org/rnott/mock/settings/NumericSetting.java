@@ -16,7 +16,6 @@
 
 package org.rnott.mock.settings;
 
-import org.rnott.mock.Setting;
 
 
 /**

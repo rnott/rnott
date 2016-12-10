@@ -16,7 +16,6 @@
 
 package org.rnott.mock.evaluators;
 
-import org.rnott.mock.Evaluator;
 import org.rnott.mock.evaluators.DateEvaluator;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -27,6 +26,12 @@ import org.testng.annotations.Test;
  *
  */
 public class DateEvaluatorTest {
+
+	/*
+	{ "date.now()", "date.now()" },
+	{ "${date.now()}", String.valueOf( System.currentTimeMillis() ) },
+	System.out.println( e.evaluate( "${date.now('yyyy-MM-dd\\'T\\'HH:mm Z')}" ) );
+	 */
 
 	@DataProvider(name = "methods")
 	Object [][] methods() {

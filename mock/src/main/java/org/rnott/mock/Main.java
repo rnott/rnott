@@ -41,6 +41,7 @@ import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.rnott.mock.settings.BooleanSetting;
 import org.rnott.mock.settings.NumericSetting;
+import org.rnott.mock.settings.Setting;
 import org.rnott.mock.settings.StringSetting;
 
 /*

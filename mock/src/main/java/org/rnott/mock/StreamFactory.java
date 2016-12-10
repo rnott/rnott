@@ -92,14 +92,10 @@ public class StreamFactory {
 	 * @throws IOException if the resource could not be found on the classpath,
 	 */
 	private static InputStream getResourceStream( String resource ) throws IOException {
-		if ( resource == null ) {
-			throw new IllegalArgumentException( "Resource must be specified" );
-		}
 		InputStream stream = StreamFactory.class.getClassLoader().getResourceAsStream( resource );
 		if ( stream == null ) {
 			throw new IOException( "No such resource: " + resource );
 		}
 		return stream;
 	}
-
 }

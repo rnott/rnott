@@ -16,7 +16,6 @@
 
 package org.rnott.mock.evaluators;
 
-import org.rnott.mock.Evaluator;
 import org.rnott.mock.MockContext;
 import org.rnott.mock.MockHttpServletRequest;
 import org.rnott.mock.evaluators.RequestEvaluator;
