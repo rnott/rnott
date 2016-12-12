@@ -1,0 +1,29 @@
+[
+	{
+		"uri": "/test/random",
+		"method": "GET",
+		"status": 200,
+		"handler": "random",
+		"headers": {
+			"Cache-Control": "private"
+		},
+		"response": [
+			{
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": {"id": "one"}
+			}, {
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": {"id": "two"}
+			}, {
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": {"id": "three"}
+			}
+		]
+	}
+]

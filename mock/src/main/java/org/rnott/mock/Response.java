@@ -27,44 +27,32 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * Configuration for a mock service response endpoint. The response is configured using
- * a JSON file or programmatically using a literate API.
+ * a JSON file or programmatically using a builder pattern.
  */
-public class Response implements Comparable<Response> {
+public class Response /*implements Comparable<Response>*/ {
 
 	private int status;
-	private long delay;
-	int percentile;
 	private final Map<String, String> headers;
+	private final Map<String, Object> attributes;
 	private String body;
 
 	public Response() {
+		this.attributes = new HashMap<String, Object>();
 		this.headers = new HashMap<String, String>();
 	}
 
-	public Response( int defaultStatus, long defaultDelay, Map<String, ?> attributes ) {
-		this.headers = new HashMap<String, String>();
+	@SuppressWarnings( "unchecked" )
+    public Response( int defaultStatus, Map<String, String> headers, Map<String, Object> attributes ) {
+		this.attributes = new HashMap<String, Object>( attributes );
+		this.headers = new HashMap<String, String>( headers );
 		if ( attributes.containsKey( "status" ) ) {
 			Object obj = attributes.get( "status" );
 			status = (int) obj;
 		} else {
 			status = defaultStatus;
 		}
-		if ( attributes.containsKey( "delay" ) ) {
-			Object obj = attributes.get( "delay" );
-			delay = (int) obj;
-		} else {
-			delay = defaultDelay;
-		}
-		if ( attributes.containsKey( "percentile" ) ) {
-			Object obj = attributes.get( "percentile" );
-			percentile = (int) obj;
-		}
 		if ( attributes.containsKey( "headers" ) ) {
-			@SuppressWarnings( "unchecked" )
-			Map<String, String> hdrs = (Map<String, String>) attributes.get( "headers" );
-			for ( String key : hdrs.keySet() ) {
-				headers.put( key, hdrs.get( key ) );
-			}
+			this.headers.putAll( (Map<String, String>) attributes.get( "headers" ) );
 		}
 		if ( attributes.containsKey( "body" ) ) {
 			// text or reference
@@ -106,8 +94,42 @@ public class Response implements Comparable<Response> {
 
 		return out.toString();
 	}
-	
-    /**
+
+	/**
+	 * Retrieve a configuration attribute by name.
+	 * <p>
+	 * @param attr the name of the attribute.
+	 * @return the attribute value or <code>null</code> if the attribute is undefined.
+	 */
+	public Object get( String attr ) {
+		return get( attr, Object.class );
+	}
+
+	/**
+	 * Retrieve a configuration attribute by name.
+	 * <p>
+	 * @param attr the name of the attribute.
+	 * @param type the Java type the value should be returned as.
+	 * @return the attribute value or <code>null</code> if the attribute is undefined.
+	 */
+	@SuppressWarnings( "unchecked" )
+    public <T> T get( String attr, Class<T> type ) {
+		return (T) attributes.get( attr );
+	}
+
+	/**
+	 * Assign an attribute to the endpoint configuration. 
+	 * <p>
+	 * @param attr the name of the attribute.
+	 * @param value the attribute value.
+	 * @return the current response.
+	 */
+	public Response with( String attr, Object value ) {
+		this.attributes.put( attr, value );
+		return this;
+	}
+
+	/**
      * Retrieve the current value of the status property.
      * <p>
      * @return the current property value.
@@ -127,52 +149,6 @@ public class Response implements Comparable<Response> {
 			throw new IllegalStateException( "Status must be in the range 100..599" );
 		}
 		this.status = status;
-		return this;
-	}
-
-	/**
-     * Retrieve the current value of the delay property.
-     * <p>
-     * @return the current property value.
-     */
-    public long getDelay() {
-    	return delay;
-    }
-
-    /**
-     * Assign a delay to the response. The service will wait the specified number
-     * of milliseconds before returning the response.
-     * <p>
-     * @param delay the response wait time in milliseconds.
-     * @return the current response.
-     */
-	public Response withDelay( long delay ) {
-		this.delay = delay;
-		return this;
-	}
-
-	/**
-     * Retrieve the current value of the percentile property.
-     * <p>
-     * @return the current property value.
-     */
-    public int getPercentile() {
-    	return percentile;
-    }
-
-    /**
-     * Assign a percentile to use when selecting the response out
-     * of multiple choices. Percentiles allow a response to be
-     * chosen at random the specified amount of the time.
-     * <p>
-     * @param percentile the percentile to configure.
-     * @return the current response.
-     */
-	public Response withPercentile( int percentile ) {
-		if ( percentile < 0 || percentile > 100 ) {
-			throw new IllegalStateException( "A percentile must be in the range 1..100" );
-		}
-		this.percentile = percentile;
 		return this;
 	}
 
@@ -224,20 +200,5 @@ public class Response implements Comparable<Response> {
     @Override
 	public String toString() {
 		return String.valueOf( status );
-	}
-
-    /*
-     * (non-Javadoc)
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
-	@Override
-	public int compareTo( Response o ) {
-		if ( this.percentile == o.percentile ) {
-			return 0;
-		} else if ( this.percentile > o.percentile ) {
-			return 1;
-		} else {
-			return -1;
-		}
 	}
 }

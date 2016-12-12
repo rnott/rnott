@@ -62,39 +62,7 @@ public class ResponseTest {
 		};
 	}
 
-	@Test(dataProvider = "delay")
-	public void delay( long delay ) {
-		assert response.withDelay( delay ).getDelay() == delay : "Unexpected delay: " + response.getDelay();
-	}
-
-	@DataProvider(name = "percentile")
-	public Object [][] percentile() {
-		return new Object [][] {
-			{ 0 },
-			{ 10 },
-			{ 100 },
-		};
-	}
-
-	@Test(dataProvider = "percentile")
-	public void percentile( int percentile ) {
-		assert response.withPercentile( percentile ).getPercentile() == percentile : "Unexpected percentile " + response.getPercentile();
-	}
-
-	@DataProvider(name = "invalidPercentile")
-	public Object [][] invalidPercentile() {
-		return new Object [][] {
-			{ -1 },
-			{ 101 },
-		};
-	}
-
-	@Test(dataProvider = "invalidPercentile", expectedExceptions = IllegalStateException.class)
-	public void percentile_IllegalStateException( int percentile ) {
-		response.withPercentile( percentile );
-	}
-
-	@DataProvider(name = "stgtus")
+	@DataProvider(name = "status")
 	public Object [][] stgtus() {
 		return new Object [][] {
 			{ 100 },
@@ -103,12 +71,12 @@ public class ResponseTest {
 		};
 	}
 
-	@Test(dataProvider = "stgtus")
+	@Test(dataProvider = "status")
 	public void status( int status ) {
 		assert response.withStatus( status ).getStatus() == status : "Unexpected status " + response.getStatus();
 	}
 
-	@DataProvider(name = "invalidStgtus")
+	@DataProvider(name = "invalidStatus")
 	public Object [][] invalidStgtus() {
 		return new Object [][] {
 			{ 0 },
@@ -117,7 +85,7 @@ public class ResponseTest {
 		};
 	}
 
-	@Test(dataProvider = "invalidStgtus", expectedExceptions = IllegalStateException.class)
+	@Test(dataProvider = "invalidStatus", expectedExceptions = IllegalStateException.class)
 	public void stgtus_IllegalStateException( int status ) {
 		response.withStatus( status );
 	}
@@ -139,15 +107,5 @@ public class ResponseTest {
 			assert response.getHeaders().get( key ).equals( headers.get( key ) )
 				: "Unexpected value: '" + response.getHeaders().get( key ) + "', expected '" + headers.get( key ) + "'";
 		}
-	}
-
-	@Test
-	public void compareTo() {
-		assert new Response().withPercentile( 100 ).compareTo( response.withPercentile( 100 ) ) == 0 : "Equivalence failed";
-		assert new Response().withPercentile( 100 ).compareTo( response.withPercentile( 99 ) ) > 0 : "After failed";
-		assert new Response().withPercentile( 99 ).compareTo( response.withPercentile( 100 ) ) < 0 : "Before failed";
-		assert new Response().withPercentile( 100 ).withDelay( 100 ).withStatus( 200 ).compareTo( response.withPercentile( 100 ) ) == 0 : "Equivalence failed";
-		assert new Response().withPercentile( 100 ).withDelay( 100 ).withStatus( 200 ).compareTo( response.withPercentile( 99 ) ) > 0 : "After failed";
-		assert new Response().withPercentile( 99 ).withDelay( 100 ).withStatus( 200 ).compareTo( response.withPercentile( 100 ) ) < 0 : "Before failed";
 	}
 }

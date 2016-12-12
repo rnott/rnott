@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-package org.rnott.mock;
+package org.rnott.mock.handler;
 
+import org.rnott.mock.Endpoint;
+import org.rnott.mock.Response;
 
 /**
- * Test functionality of the <code>Endpoint</code> component.
- * <p>
- * @see Endpoint
+ * Handle endpoint requests by selecting a response from one or
+ * more configured responses.
  */
-public class EndpointTest {
+public interface ResponseHandler {
 
-	public Object [][] requests() {
-		return new Object [][] {
-		};
-	}
-
-	public void foo() {
-		Endpoint e = new Endpoint( null );
-		e.getDelay();
-		e.getMethod();
-		e.getResponses();
-		e.getStatus();
-		e.getUriTemplate();
-	}
+	/**
+	 * Determine the response for an endpoint request.
+	 * <p>
+	 * @param endpoint the request endpoint.
+	 * @return the response to be returned.
+	 */
+	Response getResponse( Endpoint endpoint );
 }

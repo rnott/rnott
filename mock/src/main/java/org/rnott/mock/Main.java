@@ -166,7 +166,7 @@ public class Main {
         webapp.setWar( "/" );
 
         // enable request capture ?
-        if ( config.<Boolean>getValue( "caputureEnabled" ) ) {
+        if ( config.<Boolean>getValue( "captureEnabled" ) ) {
         	// add filter to capture requests
             webapp.addFilter( (Class<? extends Filter>) CaptureFilter.class, "/*", EnumSet.allOf( DispatcherType.class ) );
 

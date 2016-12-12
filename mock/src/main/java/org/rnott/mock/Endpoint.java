@@ -17,6 +17,7 @@
 package org.rnott.mock;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import com.sun.jersey.api.uri.UriTemplate;
@@ -26,10 +27,10 @@ public class Endpoint {
 	private final UriTemplate uriTemplate;
 	
 	private final String method;
+	private final String handler; 
 	private final int status;
 	private final long delay;
 	private final List<Response> responses;
-	private final List<Response> percentile;
 
 	@SuppressWarnings( "unchecked" )
 	public Endpoint( Map<String, ?> attributes ) {
@@ -39,9 +40,6 @@ public class Endpoint {
 		if ( ! attributes.containsKey( "method" ) ) {
 			throw new IllegalStateException( "Endpoint definition missing required 'method' attribute: " + attributes );
 		}
-		if ( ! attributes.containsKey( "status" ) ) {
-			throw new IllegalStateException( "Endpoint definition missing required 'status' attribute:" + attributes );
-		}
 		if ( ! attributes.containsKey( "response" ) ) {
 			throw new IllegalStateException( "Endpoint definition missing required 'response' attribute:" + attributes );
 		}
@@ -50,8 +48,17 @@ public class Endpoint {
 		uriTemplate = new UriTemplate( (String) obj );
 		obj = attributes.get( "method" );
 		method = (String) obj;
-		obj = attributes.get( "status" );
-		status = (int) obj;
+		if ( attributes.containsKey( "handler" ) ) {
+			handler = (String) attributes.get( "handler" );
+		} else {
+			handler = null;
+		}
+		if ( attributes.containsKey( "status" ) ) {
+			obj = attributes.get( "status" );
+			status = (int) obj;
+		} else {
+			status = 200;
+		}
 		if ( attributes.containsKey( "delay" ) ) {
 			obj = attributes.get( "delay" );
 			delay = (int) obj;
@@ -60,54 +67,13 @@ public class Endpoint {
 		}
 
 		responses = new ArrayList<Response>();
-		List<Map<String, ?>> entries = (List<Map<String, ?>>) attributes.get( "response" );
-		for ( Map<String, ?> r : entries ) {
-			responses.add( new Response( status, delay, r ) );
-		}
-
-		// normalize response percentiles
-		List<Response> unassigned = new ArrayList<Response>();
-		int sum = 0;
-		for ( Response r : responses ) {
-			sum += r.percentile;
-			if ( r.percentile <= 0 ) {
-				unassigned.add( r );
+		List<Map<String, Object>> entries = (List<Map<String, Object>>) attributes.get( "response" );
+		for ( Map<String, Object> r : entries ) {
+			Map<String, String> headers = new HashMap<String, String>();
+			if ( attributes.containsKey( "headers" ) ) {
+				headers.putAll( (Map<String, String>) attributes.get( "headers" ) );
 			}
-		}
-		if ( sum > 100 ) {
-			throw new IllegalStateException( "Sum of enpoint response percentiles exceeds 100:" + this );
-		}
-		if ( sum < 100 && unassigned.size() == 0 ) {
-			throw new IllegalStateException( "Sum of enpoint response percentiles less than 100:" + this );
-		}
-		if ( sum == 100 && unassigned.size() > 0 ) {
-			throw new IllegalStateException( "Enpoint responses cannot be assigned a percentile: " + this + " " + unassigned );
-		}
-
-		if ( unassigned.size() > 0 ) {
-			// spread remaining percentile evenly over unassigned endpoints
-			int value = (100 - sum) / unassigned.size();
-			if ( value == 0 ) {
-				throw new IllegalStateException( "Enpoint responses cannot be assigned a percentile: " + this + " " + unassigned );
-			}
-			for ( Response r : unassigned ) {
-				r.percentile = value;
-			}
-			int updated = sum + (unassigned.size() * value);
-			for ( Response r : unassigned ) {
-				if ( updated == 100 ) {
-					break;
-				}
-				r.percentile -= 1;
-				updated -= 1;
-			}
-		}
-
-		percentile = new ArrayList<Response>( 100 );
-		for ( Response r : responses ) {
-			for ( int i = 0; i < r.percentile; i++ ) {
-				percentile.add( r );
-			}
+			responses.add( new Response( status, headers, r ) );
 		}
 	}
 
@@ -130,11 +96,20 @@ public class Endpoint {
     	return method;
     }
 
+    /**
+     * Retrieve the current value of the handler property.
+     * <p>
+     * @return the current property value or <code>null</code> if no
+     * value has been assigned.
+     */
+    public String getHandlerType() {
+    	return handler;
+    }
 	
     /**
      * Retrieve the current value of the status property.
      * <p>
-     * @return the current property value.
+     * @return the current property value. The default value is 200.
      */
     public int getStatus() {
     	return status;
@@ -144,7 +119,7 @@ public class Endpoint {
     /**
      * Retrieve the current value of the delay property.
      * <p>
-     * @return the current property value.
+     * @return the current property value. The default value is 0.
      */
     public long getDelay() {
     	return delay;
@@ -160,15 +135,6 @@ public class Endpoint {
     	return responses;
     }
 
-	
-    /**
-     * Retrieve the current value of the percentile property.
-     * <p>
-     * @return the current property value.
-     */
-    public List<Response> getPercentile() {
-    	return percentile;
-    }
 
 	@Override
 	public String toString() {

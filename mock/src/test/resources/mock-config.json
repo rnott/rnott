@@ -1,57 +1,166 @@
 [
 	{
+		"uri": "/test/random",
+		"method": "GET",
+		"status": 200,
+		"handler": "random",
+		"headers": {
+			"Cache-Control": "private",
+			"Date": "${date.now('EEE, dd MMM yyyy HH:mm:ss z')}"
+		},
+		"response": [
+			{
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "one"
+			}, {
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "two"
+			}, {
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "three"
+			}
+		]
+	}, {
+		"uri": "/test/sequential",
+		"method": "GET",
+		"status": 200,
+		"handler": "sequential",
+		"headers": {
+			"Cache-Control": "private",
+			"Date": "${date.now('EEE, dd MMM yyyy HH:mm:ss z')}"
+		},
+		"response": [
+			{
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "one"
+			}, {
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "two"
+			}, {
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "three"
+			}
+		]
+	}, {
+		"uri": "/test/rate",
+		"method": "GET",
+		"status": 200,
+		"handler": "rate",
+		"headers": {
+			"Cache-Control": "private",
+			"Date": "${date.now('EEE, dd MMM yyyy HH:mm:ss z')}"
+		},
+		"response": [
+			{
+				"rate": 60,
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "one"
+			}, {
+				"rate": 30,
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "two"
+			}, {
+				"rate": 10,
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "three"
+			}
+		]
+	}, {
+		"uri": "/test/params",
+		"method": "GET",
+		"status": 200,
+		"handler": "params",
+		"headers": {
+			"Cache-Control": "private",
+			"Date": "${date.now('EEE, dd MMM yyyy HH:mm:ss z')}"
+		},
+		"response": [
+			{
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "one"
+			}, {
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "two"
+			}, {
+				"headers": {
+					"Content-Type": "text/plain; charset=utf-8"
+				},
+				"body": "three"
+			}
+		]
+	}, {
 		"uri": "/foo",
 		"method": "GET",
 		"status": 200,
 		"delay": 1000,
 		"response": [
 			{
-				"percentile": 80,
+				"rate": 80,
 				"headers": {
 					"Cache-Control": "private",
 					"Content-Type": "text/json; charset=utf-8",
 					"Server": "",
 					"X-Powered-By": "",
-					"Date": "${date.now['EEE, dd MMM yyyy HH:mm:ss z']}",
+					"Date": "${date.now('EEE, dd MMM yyyy HH:mm:ss z')}",
 					"Connection": "Keep-Alive"
 				},
 				"body": {
-					"echo": ${echo},
-					"foo": "${string.substring[${echo},0,${string.indexOf[${echo},'@']}]}",
-					"bar": "${string.replace[${string.substring[${echo},${string.indexOf[${echo},'@']}]},'@','']}"
+					"echo": "${echo}",
+					"foo": "${string.substring(${echo},0,${string.indexOf(${echo},'@')})}",
+					"bar": "${string.replace(${string.substring(${echo},${string.indexOf(${echo},'@')})},'@','')}"
 				}
 			}, {
-				"percentile": 10,
-				"delay": 2000,
+				"rate": 10,
 				"headers": {
 					"Cache-Control": "private",
 					"Content-Type": "text/json; charset=utf-8",
 					"Server": "",
 					"X-Powered-By": "",
-					"Date": "${date.now['EEE, dd MMM yyyy HH:mm:ss z']}",
+					"Date": "${date.now('EEE, dd MMM yyyy HH:mm:ss z')}",
 					"Connection": "Keep-Alive"
 				},
 				"body": {
-					"echo": ${echo},
-					"foo": "${string.substring[${echo},0,${string.indexOf[${echo},'@']}]}",
-					"bar": "${string.replace[${string.substring[${echo},${string.indexOf[${echo},'@']}]},'@','']}"
+					"echo": "${echo}",
+					"foo": "${string.substring(${echo},0,${string.indexOf(${echo},'@')})}",
+					"bar": "${string.replace(${string.substring(${echo},${string.indexOf(${echo},'@')})},'@','')}"
 				}
 			}, {
-				"percentile": 10,
-				"delay": 3000,
+				"rate": 10,
 				"headers": {
 					"Cache-Control": "private",
 					"Content-Type": "text/json; charset=utf-8",
 					"Server": "",
 					"X-AspNet-Version": "",
 					"X-Powered-By": "",
-					"Date": "${date.now['EEE, dd MMM yyyy HH:mm:ss z']}",
+					"Date": "${date.now('EEE, dd MMM yyyy HH:mm:ss z')}",
 					"Connection": "Keep-Alive"
 				},
 				"body": {
 					"echo": "${echo}",
-					"foo" : "${string.substring[${echo},0,${string.indexOf[${echo},'@']}]}",
-					"bar" : "${string.replace[${string.substring[${echo},${string.indexOf[${echo},'@']}]},'@','']}"
+					"foo" : "${string.substring(${echo},0,${string.indexOf(${echo},'@')})}",
+					"bar" : "${string.replace(${string.substring(${echo},${string.indexOf(${echo},'@')})},'@','')}"
 				}
 			}
 		]
@@ -66,7 +175,7 @@
 					"Content-Type": "text/json; charset=utf-8",
 					"Server": "",
 					"X-Powered-By": "",
-					"Date": "${date.now['EEE, dd MMM yyyy HH:mm:ss z']}",
+					"Date": "${date.now('EEE, dd MMM yyyy HH:mm:ss z')}"
 				},
 				"body": {
 					"echo": "The value of the query parameter echo is '${echo}'"

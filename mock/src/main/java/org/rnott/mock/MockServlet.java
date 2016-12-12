@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.rnott.mock.handler.ResponseFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -83,34 +84,6 @@ public class MockServlet extends HttpServlet {
 		MockContext context = MockContext.get();
 		context.setRequest( request );
 
-		if ( trace ) {
-			StringBuilder sb = new StringBuilder()
-				.append( "Source-IP: ")
-				.append( request.getRemoteAddr() )
-				.append( ":" )
-				.append( request.getRemotePort() )
-				.append( NEWLINE )
-				.append( request.getMethod() )
-				.append( " " )
-				.append( request.getProtocol() )
-				.append( " " )
-				.append( request.getRequestURI() );
-			String q = request.getQueryString();
-			if ( q != null && q.length() > 0 ) {
-				sb.append( "?" ).append( q );
-			}
-			sb.append( NEWLINE );
-			Enumeration<String> headers = request.getHeaderNames();
-			while ( headers.hasMoreElements() ) {
-				String name = headers.nextElement();
-				sb.append( name )
-					.append( ": " )
-					.append( request.getHeader( name ) )
-					.append( NEWLINE );
-			}
-			log( sb.toString() );
-		}
-
 		// match path/method
 		if ( debug ) {
 			log( "Matching request: " + request.getMethod() + " " + request.getRequestURI() );
@@ -135,7 +108,7 @@ public class MockServlet extends HttpServlet {
 					if ( debug ) {
 						log( "Matched URI: " + e.getUriTemplate().getTemplate() );
 					}
-					Response r = getResponse( e );
+					Response r = ResponseFactory.getResponse( e );
 					if ( r == null ) {
 						throw new IllegalStateException( "No response available for endpoint: "
 							+ e.getMethod() + " " + e.getUriTemplate().getTemplate() );
@@ -153,13 +126,17 @@ public class MockServlet extends HttpServlet {
 						response.getOutputStream().write( body.getBytes() );
 					}
 
-					if ( r.getDelay() > 0 ) {
+					if ( e.getDelay() > 0 ) {
 						if ( debug ) {
-							log( "Delaying response: " + r.getDelay() + "ms" );
+							log( "Delaying response: " + e.getDelay() + "ms" );
 						}
 						try {
-							Thread.sleep( r.getDelay() );
+							Thread.sleep( e.getDelay() );
 						} catch ( InterruptedException ignore ) {}
+					}
+
+					if ( trace ) {
+						logAccess( request, r.getStatus() );
 					}
 
 					// commit
@@ -175,12 +152,6 @@ public class MockServlet extends HttpServlet {
 		}
 	}
 
-	
-	private Response getResponse( Endpoint e ) {
-		int index = (int)(Math.random() * 100);
-		return e.getPercentile().get( index );
-	}
-
 	private void initialize( InputStream config ) throws IOException {
 		endpoints = new ArrayList<Endpoint>();
 		ObjectMapper mapper = new ObjectMapper();
@@ -189,5 +160,35 @@ public class MockServlet extends HttpServlet {
 		for ( Map<String, ?> entry : entries ) {
 			endpoints.add( new Endpoint( entry ) );
 		}
+	}
+
+	private void logAccess( HttpServletRequest request, int status ) {
+		StringBuilder sb = new StringBuilder()
+		.append( "Source-IP: ")
+		.append( request.getRemoteAddr() )
+		.append( ":" )
+		.append( request.getRemotePort() )
+		.append( NEWLINE )
+		.append( request.getMethod() )
+		.append( " " )
+		.append( request.getProtocol() )
+		.append( " " )
+		.append( status )
+		.append( " " )
+		.append( request.getRequestURI() );
+		String q = request.getQueryString();
+		if ( q != null && q.length() > 0 ) {
+			sb.append( "?" ).append( q );
+		}
+		sb.append( NEWLINE );
+		Enumeration<String> headers = request.getHeaderNames();
+		while ( headers.hasMoreElements() ) {
+			String name = headers.nextElement();
+			sb.append( name )
+				.append( ": " )
+				.append( request.getHeader( name ) )
+				.append( NEWLINE );
+		}
+		log( sb.toString() );
 	}
 }

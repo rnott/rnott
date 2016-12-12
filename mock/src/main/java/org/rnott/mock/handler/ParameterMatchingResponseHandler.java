@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package org.rnott.mock;
+package org.rnott.mock.handler;
 
 
 /**
- * Test functionality of the <code>Endpoint</code> component.
- * <p>
- * @see Endpoint
+ * TODO: document ParameterMatchingResponseHandler
+ *
  */
-public class EndpointTest {
+public class ParameterMatchingResponseHandler {
 
-	public Object [][] requests() {
-		return new Object [][] {
-		};
-	}
-
-	public void foo() {
-		Endpoint e = new Endpoint( null );
-		e.getDelay();
-		e.getMethod();
-		e.getResponses();
-		e.getStatus();
-		e.getUriTemplate();
-	}
 }
