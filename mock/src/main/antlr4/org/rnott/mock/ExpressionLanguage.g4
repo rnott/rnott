@@ -68,6 +68,7 @@ verbatim
 	|	EXP_END
 	|   OPEN_PARAMS
 	|   CLOSE_PARAMS
+	|	DASH
 	|   ESCAPE
 	|   ESCAPED
 	|	literal
@@ -125,6 +126,7 @@ EXP_END
 
 CID
 	:	ID (DOT ID)+
+	|	ID (DASH ID)+
 	;
 
 ID
@@ -137,6 +139,10 @@ DOT
 
 COMMA
 	:	','
+	;
+
+DASH
+	:	'-'
 	;
 
 ESCAPED

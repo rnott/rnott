@@ -100,6 +100,9 @@ public class ExpressionLanguageEvaluaterTest {
 			{ "(", "(" },
 			// CLOSE_PARAMS
 			{ ")", ")" },
+			// DASH
+			{"-", "-"},
+			{"a-b", "a-b"},
 			// STRING
 			{ "'abc'", "'abc'" },
 			{ "\"abc\"", "\"abc\"" },

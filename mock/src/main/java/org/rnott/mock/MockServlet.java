@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.rnott.mock.handler.ResponseFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -94,7 +95,7 @@ public class MockServlet extends HttpServlet {
 			}
 			if ( request.getMethod().equalsIgnoreCase( e.getMethod() ) ) {
 				if ( debug ) {
-					log( "Matched method: " + e.getMethod() );
+					log( "Matched: " + e.getMethod() + " " + e.getUriTemplate().getTemplate() );
 				}
 				Map<String, String> params = context.getParameters();
 				params.clear();
@@ -104,9 +105,18 @@ public class MockServlet extends HttpServlet {
 					while ( names.hasMoreElements() ) {
 						String key = (String) names.nextElement();
 						params.put( key, request.getParameter( key ) );
+						if ( debug ) {
+							log( "Query parameter: " + key + " [" + request.getParameter( key ) + "] available as expression parameter" );
+						}
 					}
-					if ( debug ) {
-						log( "Matched URI: " + e.getUriTemplate().getTemplate() );
+					// add all request headers
+					names = request.getHeaderNames();
+					while ( names.hasMoreElements() ) {
+						String key = (String) names.nextElement();
+						params.put( key, request.getHeader( key ) );
+						if ( debug ) {
+							log( "Request header: " + key + " [" + request.getHeader( key ) + "] available as expression parameter" );
+						}
 					}
 					Response r = ResponseFactory.getResponse( e );
 					if ( r == null ) {
@@ -119,6 +129,7 @@ public class MockServlet extends HttpServlet {
 					}
 					response.setStatus( r.getStatus() );
 					for ( String key : r.getHeaders().keySet() ) {
+						log("Evaluating response header: " + key + " [" + r.getHeaders().get( key ) + "]" );
 						response.addHeader( key, context.evaluate( r.getHeaders().get( key ) ) );
 					}
 					String body = context.evaluate( r.getBody() );
@@ -155,6 +166,8 @@ public class MockServlet extends HttpServlet {
 	private void initialize( InputStream config ) throws IOException {
 		endpoints = new ArrayList<Endpoint>();
 		ObjectMapper mapper = new ObjectMapper();
+		// allow comments in configuration
+		mapper.configure( JsonParser.Feature.ALLOW_COMMENTS, true );
 		@SuppressWarnings( "unchecked" )
 		Map<String, ?> [] entries = mapper.readValue( config, Map [].class );
 		for ( Map<String, ?> entry : entries ) {
